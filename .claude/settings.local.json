@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew:*)",
+      "Bash(cat:*)",
+      "Bash(tree:*)",
+      "Bash(xargs:*)",
+      "Bash(while read jar)",
+      "Bash(do echo \"=== $jar ===\")",
+      "Bash(jar tf:*)",
+      "Bash(done)",
+      "Bash(ls:*)"
+    ]
+  }
+}
