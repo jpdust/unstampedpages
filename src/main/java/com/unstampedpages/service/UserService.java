@@ -9,7 +9,6 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-
     private final UserDAO userDAO;
 
     public UserService(UserDAO userDAO) {

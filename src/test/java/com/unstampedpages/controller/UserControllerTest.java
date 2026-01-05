@@ -57,7 +57,7 @@ class UserControllerTest {
                             {"firstName":"John","lastName":"Doe","age":30,"email":"john@example.com"}
                             """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.userId").value(1))
                 .andExpect(jsonPath("$.firstName").value("John"))
                 .andExpect(jsonPath("$.lastName").value("Doe"))
                 .andExpect(jsonPath("$.age").value(30))
@@ -93,7 +93,7 @@ class UserControllerTest {
 
         mockMvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.userId").value(1))
                 .andExpect(jsonPath("$.firstName").value("John"));
 
         verify(mockUserDAO, times(1)).findById(1L);

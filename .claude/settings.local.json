@@ -9,7 +9,8 @@
       "Bash(do echo \"=== $jar ===\")",
       "Bash(jar tf:*)",
       "Bash(done)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(find:*)"
     ]
   }
 }

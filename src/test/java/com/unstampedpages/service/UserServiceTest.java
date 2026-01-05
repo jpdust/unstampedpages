@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,7 +44,7 @@ class UserServiceTest {
         User user = userService.createUser("John", "Doe", 30, "john@example.com");
 
         assertNotNull(user);
-        assertEquals(1L, user.getId());
+        assertEquals(1L, user.getUserId());
         assertEquals("John", user.getFirstName());
         assertEquals("Doe", user.getLastName());
         assertEquals(30, user.getAge());
@@ -59,7 +60,7 @@ class UserServiceTest {
         userService.createUser("John", "Doe", 30, "john@example.com");
 
         User capturedUser = userCaptor.getValue();
-        assertNull(capturedUser.getId());
+        assertNull(capturedUser.getUserId());
         assertEquals("John", capturedUser.getFirstName());
         assertEquals("Doe", capturedUser.getLastName());
         assertEquals(30, capturedUser.getAge());
@@ -169,7 +170,7 @@ class UserServiceTest {
         userService.updateUser(1L, "Jane", "Smith", 25, "jane@example.com");
 
         User capturedUser = userCaptor.getValue();
-        assertEquals(1L, capturedUser.getId());
+        assertEquals(1L, capturedUser.getUserId());
         assertEquals("Jane", capturedUser.getFirstName());
         assertEquals("Smith", capturedUser.getLastName());
         assertEquals(25, capturedUser.getAge());

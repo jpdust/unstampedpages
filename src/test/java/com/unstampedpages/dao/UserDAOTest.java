@@ -33,7 +33,7 @@ class UserDAOTest {
     void save_shouldPersistUserAndGenerateId() {
         User savedUser = userDAO.save(testUser);
 
-        assertNotNull(savedUser.getId());
+        assertNotNull(savedUser.getUserId());
         assertEquals("John", savedUser.getFirstName());
         assertEquals("Doe", savedUser.getLastName());
         assertEquals(30, savedUser.getAge());
@@ -44,7 +44,7 @@ class UserDAOTest {
     void save_shouldUpdateExistingUser() {
         entityManager.persist(testUser);
         entityManager.flush();
-        Long userId = testUser.getId();
+        Long userId = testUser.getUserId();
 
         testUser.setFirstName("Jane");
         testUser.setLastName("Smith");
@@ -66,7 +66,7 @@ class UserDAOTest {
         entityManager.persist(testUser);
         entityManager.flush();
 
-        Optional<User> foundUser = userDAO.findById(testUser.getId());
+        Optional<User> foundUser = userDAO.findById(testUser.getUserId());
 
         assertTrue(foundUser.isPresent());
         assertEquals("John", foundUser.get().getFirstName());
@@ -105,7 +105,7 @@ class UserDAOTest {
         entityManager.persist(testUser);
         entityManager.flush();
 
-        boolean exists = userDAO.existsById(testUser.getId());
+        boolean exists = userDAO.existsById(testUser.getUserId());
 
         assertTrue(exists);
     }
@@ -121,7 +121,7 @@ class UserDAOTest {
     void deleteById_shouldRemoveUser() {
         entityManager.persist(testUser);
         entityManager.flush();
-        Long userId = testUser.getId();
+        Long userId = testUser.getUserId();
 
         userDAO.deleteById(userId);
         entityManager.flush();
@@ -135,7 +135,7 @@ class UserDAOTest {
     void delete_shouldRemoveUser() {
         entityManager.persist(testUser);
         entityManager.flush();
-        Long userId = testUser.getId();
+        Long userId = testUser.getUserId();
 
         userDAO.delete(testUser);
         entityManager.flush();
