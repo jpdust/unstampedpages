@@ -1,45 +1,49 @@
 package com.unstampedpages.service;
 
+import com.unstampedpages.dao.UserDAO;
 import com.unstampedpages.model.User;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class UserService {
-    private final List<User> users = new ArrayList<>();
-    private final AtomicLong idCounter = new AtomicLong(1);
+
+    private final UserDAO userDAO;
+
+    public UserService(UserDAO userDAO) {
+        this.userDAO = userDAO;
+    }
 
     public User createUser(String firstName, String lastName, int age, String email) {
-        User user = new User(idCounter.getAndIncrement(), firstName, lastName, age, email);
-        users.add(user);
-        return user;
+        User user = new User(null, firstName, lastName, age, email);
+        return userDAO.save(user);
     }
 
     public Optional<User> getUser(Long id) {
-        return users.stream()
-                .filter(user -> user.getId().equals(id))
-                .findFirst();
+        return userDAO.findById(id);
     }
 
     public List<User> getAllUsers() {
-        return new ArrayList<>(users);
+        return userDAO.findAll();
     }
 
     public Optional<User> updateUser(Long id, String firstName, String lastName, int age, String email) {
-        return getUser(id).map(user -> {
+        return userDAO.findById(id).map(user -> {
             user.setFirstName(firstName);
             user.setLastName(lastName);
             user.setAge(age);
             user.setEmail(email);
-            return user;
+            return userDAO.save(user);
         });
     }
 
     public boolean deleteUser(Long id) {
-        return users.removeIf(user -> user.getId().equals(id));
+        if (userDAO.existsById(id)) {
+            userDAO.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }
