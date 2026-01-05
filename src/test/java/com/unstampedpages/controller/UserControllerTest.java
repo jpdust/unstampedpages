@@ -42,7 +42,7 @@ class UserControllerTest {
     }
 
     @Test
-    void createUser_shouldReturnCreatedUser() throws Exception {
+    private void createUser_shouldReturnCreatedUser() throws Exception {
         User user = new User(1L, "John", "Doe", 30, "john@example.com");
         when(userService.createUser(anyString(), anyString(), anyInt(), anyString())).thenReturn(user);
 
@@ -60,7 +60,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getUser_shouldReturnUserWhenExists() throws Exception {
+    private void getUser_shouldReturnUserWhenExists() throws Exception {
         User user = new User(1L, "John", "Doe", 30, "john@example.com");
         when(userService.getUser(1L)).thenReturn(Optional.of(user));
 
@@ -71,7 +71,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getUser_shouldReturn404WhenNotExists() throws Exception {
+    private void getUser_shouldReturn404WhenNotExists() throws Exception {
         when(userService.getUser(999L)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/users/999"))
@@ -79,7 +79,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getAllUsers_shouldReturnEmptyListWhenNoUsers() throws Exception {
+    private void getAllUsers_shouldReturnEmptyListWhenNoUsers() throws Exception {
         when(userService.getAllUsers()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/users"))
@@ -89,7 +89,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getAllUsers_shouldReturnAllUsers() throws Exception {
+    private void getAllUsers_shouldReturnAllUsers() throws Exception {
         User user1 = new User(1L, "John", "Doe", 30, "john@example.com");
         User user2 = new User(2L, "Jane", "Smith", 25, "jane@example.com");
         when(userService.getAllUsers()).thenReturn(Arrays.asList(user1, user2));
@@ -103,7 +103,7 @@ class UserControllerTest {
     }
 
     @Test
-    void updateUser_shouldReturnUpdatedUserWhenExists() throws Exception {
+    private void updateUser_shouldReturnUpdatedUserWhenExists() throws Exception {
         User updatedUser = new User(1L, "Jane", "Smith", 25, "jane@example.com");
         when(userService.updateUser(eq(1L), anyString(), anyString(), anyInt(), anyString()))
                 .thenReturn(Optional.of(updatedUser));
@@ -121,7 +121,7 @@ class UserControllerTest {
     }
 
     @Test
-    void updateUser_shouldReturn404WhenNotExists() throws Exception {
+    private void updateUser_shouldReturn404WhenNotExists() throws Exception {
         when(userService.updateUser(eq(999L), anyString(), anyString(), anyInt(), anyString()))
                 .thenReturn(Optional.empty());
 
@@ -134,7 +134,7 @@ class UserControllerTest {
     }
 
     @Test
-    void deleteUser_shouldReturn204WhenUserExists() throws Exception {
+    private void deleteUser_shouldReturn204WhenUserExists() throws Exception {
         when(userService.deleteUser(1L)).thenReturn(true);
 
         mockMvc.perform(delete("/users/1"))
@@ -142,7 +142,7 @@ class UserControllerTest {
     }
 
     @Test
-    void deleteUser_shouldReturn404WhenUserNotExists() throws Exception {
+    private void deleteUser_shouldReturn404WhenUserNotExists() throws Exception {
         when(userService.deleteUser(999L)).thenReturn(false);
 
         mockMvc.perform(delete("/users/999"))
