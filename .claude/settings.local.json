@@ -12,7 +12,8 @@
       "Bash(ls:*)",
       "Bash(find:*)",
       "Bash(pkill:*)",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "Bash(curl:*)"
     ]
   }
 }
