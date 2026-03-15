@@ -30,6 +30,10 @@ class UserServiceTest {
     private ArgumentCaptor<User> userCaptor;
 
     private UserService userService;
+    private User resultUser;
+    private Optional<User> optionalResult;
+    private List<User> userList;
+    private boolean booleanResult;
 
     @BeforeEach
     void setUp() {
@@ -38,27 +42,249 @@ class UserServiceTest {
 
     @Test
     void createUser_shouldCreateUserWithCorrectFields() {
-        User savedUser = new User(1L, "John", "Doe", 30, "john@example.com");
-        when(userDAO.save(any(User.class))).thenReturn(savedUser);
-
-        User user = userService.createUser("John", "Doe", 30, "john@example.com");
-
-        assertNotNull(user);
-        assertEquals(1L, user.getUserId());
-        assertEquals("John", user.getFirstName());
-        assertEquals("Doe", user.getLastName());
-        assertEquals(30, user.getAge());
-        assertEquals("john@example.com", user.getEmail());
-        verify(userDAO).save(any(User.class));
+        givenDAOWillSaveUser();
+        whenCreatingUser();
+        thenUserIsCreatedWithCorrectFields();
     }
 
     @Test
     void createUser_shouldPassCorrectUserToDAO() {
+        givenDAOWillCaptureAndSaveUser();
+        whenCreatingUser();
+        thenCorrectUserWasPassedToDAO();
+    }
+
+    @Test
+    void createUser_shouldInvokeDAOSaveExactlyOnce() {
+        givenDAOWillSaveUser();
+        whenCreatingUser();
+        thenDAOSaveWasInvokedExactlyOnce();
+    }
+
+    @Test
+    void getUser_shouldReturnUserWhenExists() {
+        givenUserExists();
+        whenGettingUser();
+        thenUserIsReturned();
+    }
+
+    @Test
+    void getUser_shouldReturnEmptyWhenNotExists() {
+        givenUserDoesNotExist();
+        whenGettingNonExistentUser();
+        thenEmptyOptionalIsReturned();
+    }
+
+    @Test
+    void getUser_shouldInvokeDAOFindByIdWithCorrectId() {
+        givenUserDoesNotExistWithId(42L);
+        whenGettingUserById(42L);
+        thenDAOFindByIdWasInvokedOnlyOnce(42L);
+    }
+
+    @Test
+    void getAllUsers_shouldReturnEmptyListWhenNoUsers() {
+        givenNoUsersExist();
+        whenGettingAllUsers();
+        thenEmptyListIsReturned();
+    }
+
+    @Test
+    void getAllUsers_shouldReturnAllUsers() {
+        givenMultipleUsersExist();
+        whenGettingAllUsers();
+        thenAllUsersAreReturned();
+    }
+
+    @Test
+    void getAllUsers_shouldInvokeDAOFindAllExactlyOnce() {
+        givenNoUsersExist();
+        whenGettingAllUsers();
+        thenDAOFindAllWasInvokedExactlyOnce();
+    }
+
+    @Test
+    void updateUser_shouldUpdateExistingUser() {
+        givenExistingUserForUpdate();
+        whenUpdatingUser();
+        thenUserIsUpdated();
+    }
+
+    @Test
+    void updateUser_shouldPassUpdatedUserToDAO() {
+        givenExistingUserForUpdateCapture();
+        whenUpdatingUser();
+        thenUpdatedUserWasPassedToDAO();
+    }
+
+    @Test
+    void updateUser_shouldReturnEmptyWhenUserNotExists() {
+        givenUserDoesNotExistForUpdate();
+        whenUpdatingNonExistentUser();
+        thenEmptyOptionalIsReturnedAndSaveNotCalled();
+    }
+
+    @Test
+    void updateUser_shouldInvokeDAOFindByIdThenSave() {
+        givenExistingUserForUpdateVerification();
+        whenUpdatingUser();
+        thenDAOFindByIdAndSaveWereCalledInOrder();
+    }
+
+    @Test
+    void deleteUser_shouldReturnTrueWhenUserExists() {
+        givenUserExistsForDeletion();
+        whenDeletingUser();
+        thenTrueIsReturnedAndUserDeleted();
+    }
+
+    @Test
+    void deleteUser_shouldReturnFalseWhenUserNotExists() {
+        givenUserDoesNotExistForDeletion();
+        whenDeletingNonExistentUser();
+        thenFalseIsReturnedAndDeleteNotCalled();
+    }
+
+    @Test
+    void deleteUser_shouldInvokeDAOExistsByIdThenDeleteById() {
+        givenUserExistsForDeletionVerification();
+        whenDeletingUser();
+        thenDAOExistsByIdAndDeleteByIdWereCalledInOrder();
+    }
+
+    @Test
+    void deleteUser_shouldInvokeDAOWithCorrectId() {
+        givenUserExistsForDeletionWithId(42L);
+        whenDeletingUserById(42L);
+        thenDAOWasInvokedWithCorrectId(42L);
+    }
+
+    private void givenDAOWillSaveUser() {
+        User savedUser = new User(1L, "John", "Doe", 30, "john@example.com");
+        when(userDAO.save(any(User.class))).thenReturn(savedUser);
+    }
+
+    private void givenDAOWillCaptureAndSaveUser() {
         User savedUser = new User(1L, "John", "Doe", 30, "john@example.com");
         when(userDAO.save(userCaptor.capture())).thenReturn(savedUser);
+    }
 
-        userService.createUser("John", "Doe", 30, "john@example.com");
+    private void givenUserExists() {
+        User user = new User(1L, "John", "Doe", 30, "john@example.com");
+        when(userDAO.findById(1L)).thenReturn(Optional.of(user));
+    }
 
+    private void givenUserDoesNotExist() {
+        when(userDAO.findById(999L)).thenReturn(Optional.empty());
+    }
+
+    private void givenUserDoesNotExistWithId(Long id) {
+        when(userDAO.findById(id)).thenReturn(Optional.empty());
+    }
+
+    private void givenNoUsersExist() {
+        when(userDAO.findAll()).thenReturn(Collections.emptyList());
+    }
+
+    private void givenMultipleUsersExist() {
+        User user1 = new User(1L, "John", "Doe", 30, "john@example.com");
+        User user2 = new User(2L, "Jane", "Smith", 25, "jane@example.com");
+        when(userDAO.findAll()).thenReturn(Arrays.asList(user1, user2));
+    }
+
+    private void givenExistingUserForUpdate() {
+        User existingUser = new User(1L, "John", "Doe", 30, "john@example.com");
+        User updatedUser = new User(1L, "Jane", "Smith", 25, "jane@example.com");
+        when(userDAO.findById(1L)).thenReturn(Optional.of(existingUser));
+        when(userDAO.save(any(User.class))).thenReturn(updatedUser);
+    }
+
+    private void givenExistingUserForUpdateCapture() {
+        User existingUser = new User(1L, "John", "Doe", 30, "john@example.com");
+        when(userDAO.findById(1L)).thenReturn(Optional.of(existingUser));
+        when(userDAO.save(userCaptor.capture())).thenReturn(existingUser);
+    }
+
+    private void givenUserDoesNotExistForUpdate() {
+        when(userDAO.findById(999L)).thenReturn(Optional.empty());
+    }
+
+    private void givenExistingUserForUpdateVerification() {
+        User existingUser = new User(1L, "John", "Doe", 30, "john@example.com");
+        when(userDAO.findById(1L)).thenReturn(Optional.of(existingUser));
+        when(userDAO.save(any(User.class))).thenReturn(existingUser);
+    }
+
+    private void givenUserExistsForDeletion() {
+        when(userDAO.existsById(1L)).thenReturn(true);
+        doNothing().when(userDAO).deleteById(1L);
+    }
+
+    private void givenUserDoesNotExistForDeletion() {
+        when(userDAO.existsById(999L)).thenReturn(false);
+    }
+
+    private void givenUserExistsForDeletionVerification() {
+        when(userDAO.existsById(1L)).thenReturn(true);
+        doNothing().when(userDAO).deleteById(1L);
+    }
+
+    private void givenUserExistsForDeletionWithId(Long id) {
+        when(userDAO.existsById(id)).thenReturn(true);
+        doNothing().when(userDAO).deleteById(id);
+    }
+
+    private void whenCreatingUser() {
+        resultUser = userService.createUser("John", "Doe", 30, "john@example.com");
+    }
+
+    private void whenGettingUser() {
+        optionalResult = userService.getUser(1L);
+    }
+
+    private void whenGettingNonExistentUser() {
+        optionalResult = userService.getUser(999L);
+    }
+
+    private void whenGettingUserById(Long id) {
+        userService.getUser(id);
+    }
+
+    private void whenGettingAllUsers() {
+        userList = userService.getAllUsers();
+    }
+
+    private void whenUpdatingUser() {
+        optionalResult = userService.updateUser(1L, "Jane", "Smith", 25, "jane@example.com");
+    }
+
+    private void whenUpdatingNonExistentUser() {
+        optionalResult = userService.updateUser(999L, "Jane", "Smith", 25, "jane@example.com");
+    }
+
+    private void whenDeletingUser() {
+        booleanResult = userService.deleteUser(1L);
+    }
+
+    private void whenDeletingNonExistentUser() {
+        booleanResult = userService.deleteUser(999L);
+    }
+
+    private void whenDeletingUserById(Long id) {
+        userService.deleteUser(id);
+    }
+
+    private void thenUserIsCreatedWithCorrectFields() {
+        assertNotNull(resultUser);
+        assertEquals(1L, resultUser.getUserId());
+        assertEquals("John", resultUser.getFirstName());
+        assertEquals("Doe", resultUser.getLastName());
+        assertEquals(30, resultUser.getAge());
+        assertEquals("john@example.com", resultUser.getEmail());
+        verify(userDAO).save(any(User.class));
+    }
+
+    private void thenCorrectUserWasPassedToDAO() {
         User capturedUser = userCaptor.getValue();
         assertNull(capturedUser.getUserId());
         assertEquals("John", capturedUser.getFirstName());
@@ -67,108 +293,54 @@ class UserServiceTest {
         assertEquals("john@example.com", capturedUser.getEmail());
     }
 
-    @Test
-    void createUser_shouldInvokeDAOSaveExactlyOnce() {
-        User savedUser = new User(1L, "John", "Doe", 30, "john@example.com");
-        when(userDAO.save(any(User.class))).thenReturn(savedUser);
-
-        userService.createUser("John", "Doe", 30, "john@example.com");
-
+    private void thenDAOSaveWasInvokedExactlyOnce() {
         verify(userDAO, times(1)).save(any(User.class));
         verifyNoMoreInteractions(userDAO);
     }
 
-    @Test
-    void getUser_shouldReturnUserWhenExists() {
-        User user = new User(1L, "John", "Doe", 30, "john@example.com");
-        when(userDAO.findById(1L)).thenReturn(Optional.of(user));
-
-        Optional<User> result = userService.getUser(1L);
-
-        assertTrue(result.isPresent());
-        assertEquals("John", result.get().getFirstName());
+    private void thenUserIsReturned() {
+        assertTrue(optionalResult.isPresent());
+        assertEquals("John", optionalResult.get().getFirstName());
         verify(userDAO).findById(1L);
     }
 
-    @Test
-    void getUser_shouldReturnEmptyWhenNotExists() {
-        when(userDAO.findById(999L)).thenReturn(Optional.empty());
-
-        Optional<User> result = userService.getUser(999L);
-
-        assertTrue(result.isEmpty());
+    private void thenEmptyOptionalIsReturned() {
+        assertTrue(optionalResult.isEmpty());
         verify(userDAO).findById(999L);
     }
 
-    @Test
-    void getUser_shouldInvokeDAOFindByIdWithCorrectId() {
-        when(userDAO.findById(42L)).thenReturn(Optional.empty());
-
-        userService.getUser(42L);
-
-        verify(userDAO, times(1)).findById(42L);
+    private void thenDAOFindByIdWasInvokedOnlyOnce(Long id) {
+        verify(userDAO, times(1)).findById(id);
         verifyNoMoreInteractions(userDAO);
     }
 
-    @Test
-    void getAllUsers_shouldReturnEmptyListWhenNoUsers() {
-        when(userDAO.findAll()).thenReturn(Collections.emptyList());
-
-        List<User> users = userService.getAllUsers();
-
-        assertNotNull(users);
-        assertTrue(users.isEmpty());
+    private void thenEmptyListIsReturned() {
+        assertNotNull(userList);
+        assertTrue(userList.isEmpty());
         verify(userDAO).findAll();
     }
 
-    @Test
-    void getAllUsers_shouldReturnAllUsers() {
-        User user1 = new User(1L, "John", "Doe", 30, "john@example.com");
-        User user2 = new User(2L, "Jane", "Smith", 25, "jane@example.com");
-        when(userDAO.findAll()).thenReturn(Arrays.asList(user1, user2));
-
-        List<User> users = userService.getAllUsers();
-
-        assertEquals(2, users.size());
+    private void thenAllUsersAreReturned() {
+        assertEquals(2, userList.size());
         verify(userDAO).findAll();
     }
 
-    @Test
-    void getAllUsers_shouldInvokeDAOFindAllExactlyOnce() {
-        when(userDAO.findAll()).thenReturn(Collections.emptyList());
-
-        userService.getAllUsers();
-
+    private void thenDAOFindAllWasInvokedExactlyOnce() {
         verify(userDAO, times(1)).findAll();
         verifyNoMoreInteractions(userDAO);
     }
 
-    @Test
-    void updateUser_shouldUpdateExistingUser() {
-        User existingUser = new User(1L, "John", "Doe", 30, "john@example.com");
-        User updatedUser = new User(1L, "Jane", "Smith", 25, "jane@example.com");
-        when(userDAO.findById(1L)).thenReturn(Optional.of(existingUser));
-        when(userDAO.save(any(User.class))).thenReturn(updatedUser);
-
-        Optional<User> result = userService.updateUser(1L, "Jane", "Smith", 25, "jane@example.com");
-
-        assertTrue(result.isPresent());
-        assertEquals("Jane", result.get().getFirstName());
-        assertEquals("Smith", result.get().getLastName());
-        assertEquals(25, result.get().getAge());
-        assertEquals("jane@example.com", result.get().getEmail());
+    private void thenUserIsUpdated() {
+        assertTrue(optionalResult.isPresent());
+        assertEquals("Jane", optionalResult.get().getFirstName());
+        assertEquals("Smith", optionalResult.get().getLastName());
+        assertEquals(25, optionalResult.get().getAge());
+        assertEquals("jane@example.com", optionalResult.get().getEmail());
         verify(userDAO).findById(1L);
         verify(userDAO).save(any(User.class));
     }
 
-    @Test
-    void updateUser_shouldPassUpdatedUserToDAO() {
-        User existingUser = new User(1L, "John", "Doe", 30, "john@example.com");
-        when(userDAO.findById(1L)).thenReturn(Optional.of(existingUser));
-        when(userDAO.save(userCaptor.capture())).thenReturn(existingUser);
-
-        userService.updateUser(1L, "Jane", "Smith", 25, "jane@example.com");
-
+    private void thenUpdatedUserWasPassedToDAO() {
         User capturedUser = userCaptor.getValue();
         assertEquals(1L, capturedUser.getUserId());
         assertEquals("Jane", capturedUser.getFirstName());
@@ -177,75 +349,40 @@ class UserServiceTest {
         assertEquals("jane@example.com", capturedUser.getEmail());
     }
 
-    @Test
-    void updateUser_shouldReturnEmptyWhenUserNotExists() {
-        when(userDAO.findById(999L)).thenReturn(Optional.empty());
-
-        Optional<User> result = userService.updateUser(999L, "Jane", "Smith", 25, "jane@example.com");
-
-        assertTrue(result.isEmpty());
+    private void thenEmptyOptionalIsReturnedAndSaveNotCalled() {
+        assertTrue(optionalResult.isEmpty());
         verify(userDAO).findById(999L);
         verify(userDAO, never()).save(any(User.class));
     }
 
-    @Test
-    void updateUser_shouldInvokeDAOFindByIdThenSave() {
-        User existingUser = new User(1L, "John", "Doe", 30, "john@example.com");
-        when(userDAO.findById(1L)).thenReturn(Optional.of(existingUser));
-        when(userDAO.save(any(User.class))).thenReturn(existingUser);
-
-        userService.updateUser(1L, "Jane", "Smith", 25, "jane@example.com");
-
+    private void thenDAOFindByIdAndSaveWereCalledInOrder() {
         var inOrder = inOrder(userDAO);
         inOrder.verify(userDAO).findById(1L);
         inOrder.verify(userDAO).save(any(User.class));
         verifyNoMoreInteractions(userDAO);
     }
 
-    @Test
-    void deleteUser_shouldReturnTrueWhenUserExists() {
-        when(userDAO.existsById(1L)).thenReturn(true);
-        doNothing().when(userDAO).deleteById(1L);
-
-        boolean result = userService.deleteUser(1L);
-
-        assertTrue(result);
+    private void thenTrueIsReturnedAndUserDeleted() {
+        assertTrue(booleanResult);
         verify(userDAO).existsById(1L);
         verify(userDAO).deleteById(1L);
     }
 
-    @Test
-    void deleteUser_shouldReturnFalseWhenUserNotExists() {
-        when(userDAO.existsById(999L)).thenReturn(false);
-
-        boolean result = userService.deleteUser(999L);
-
-        assertFalse(result);
+    private void thenFalseIsReturnedAndDeleteNotCalled() {
+        assertFalse(booleanResult);
         verify(userDAO).existsById(999L);
         verify(userDAO, never()).deleteById(anyLong());
     }
 
-    @Test
-    void deleteUser_shouldInvokeDAOExistsByIdThenDeleteById() {
-        when(userDAO.existsById(1L)).thenReturn(true);
-        doNothing().when(userDAO).deleteById(1L);
-
-        userService.deleteUser(1L);
-
+    private void thenDAOExistsByIdAndDeleteByIdWereCalledInOrder() {
         var inOrder = inOrder(userDAO);
         inOrder.verify(userDAO).existsById(1L);
         inOrder.verify(userDAO).deleteById(1L);
         verifyNoMoreInteractions(userDAO);
     }
 
-    @Test
-    void deleteUser_shouldInvokeDAOWithCorrectId() {
-        when(userDAO.existsById(42L)).thenReturn(true);
-        doNothing().when(userDAO).deleteById(42L);
-
-        userService.deleteUser(42L);
-
-        verify(userDAO).existsById(42L);
-        verify(userDAO).deleteById(42L);
+    private void thenDAOWasInvokedWithCorrectId(Long id) {
+        verify(userDAO).existsById(id);
+        verify(userDAO).deleteById(id);
     }
 }
