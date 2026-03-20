@@ -144,7 +144,7 @@ class UserControllerTest {
 
     @Test
     void deleteUser_shouldInvokeDAOExistsByIdThenDeleteById() throws Exception {
-        givenUserExistsForDeletionVerification();
+        givenUserExistsForDeletion();
         whenDeletingUserForVerification();
         thenDAOExistsByIdAndDeleteByIdWereCalledInOrder();
     }
@@ -206,11 +206,6 @@ class UserControllerTest {
 
     private void givenUserDoesNotExistForDeletion() {
         when(mockUserDAO.existsById(999L)).thenReturn(false);
-    }
-
-    private void givenUserExistsForDeletionVerification() {
-        when(mockUserDAO.existsById(1L)).thenReturn(true);
-        doNothing().when(mockUserDAO).deleteById(1L);
     }
 
     private void whenCreatingUser() throws Exception {

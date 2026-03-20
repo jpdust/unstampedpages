@@ -6,8 +6,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(useMainMethod = SpringBootTest.UseMainMethod.ALWAYS)
 class UnstampedpagesApplicationTests {
+	
 	@Test
-	void contextLoads() throws Exception {
+	void contextLoads() {
 		assertTrue(true);
 	}
 
