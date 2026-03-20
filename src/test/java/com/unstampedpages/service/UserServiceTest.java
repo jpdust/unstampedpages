@@ -148,7 +148,7 @@ class UserServiceTest {
 
     @Test
     void deleteUser_shouldInvokeDAOExistsByIdThenDeleteById() {
-        givenUserExistsForDeletionVerification();
+        givenUserExistsForDeletion();
         whenDeletingUser();
         thenDAOExistsByIdAndDeleteByIdWereCalledInOrder();
     }
@@ -223,11 +223,6 @@ class UserServiceTest {
 
     private void givenUserDoesNotExistForDeletion() {
         when(userDAO.existsById(999L)).thenReturn(false);
-    }
-
-    private void givenUserExistsForDeletionVerification() {
-        when(userDAO.existsById(1L)).thenReturn(true);
-        doNothing().when(userDAO).deleteById(1L);
     }
 
     private void givenUserExistsForDeletionWithId(Long id) {
