@@ -19,7 +19,7 @@ public class UserController {
 
     @PostMapping
     public UserDTO createUser(@RequestBody UserDTO userDTO) {
-        return userService.createUser(userDTO.getFirstName(), userDTO.getLastName(), userDTO.getAge(), userDTO.getEmail());
+        return userService.createUser(userDTO.firstName(), userDTO.lastName(), userDTO.age(), userDTO.email());
     }
 
     @GetMapping("/{id}")
@@ -36,7 +36,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
-        return userService.updateUser(id, userDTO.getFirstName(), userDTO.getLastName(), userDTO.getAge(), userDTO.getEmail())
+        return userService.updateUser(id, userDTO.firstName(), userDTO.lastName(), userDTO.age(), userDTO.email())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

@@ -277,11 +277,11 @@ class UserServiceTest {
 
     private void thenUserIsCreatedWithCorrectFields() {
         assertNotNull(resultUserDTO);
-        assertEquals(1L, resultUserDTO.getUserId());
-        assertEquals("John", resultUserDTO.getFirstName());
-        assertEquals("Doe", resultUserDTO.getLastName());
-        assertEquals(30, resultUserDTO.getAge());
-        assertEquals("john@example.com", resultUserDTO.getEmail());
+        assertEquals(1L, resultUserDTO.userId());
+        assertEquals("John", resultUserDTO.firstName());
+        assertEquals("Doe", resultUserDTO.lastName());
+        assertEquals(30, resultUserDTO.age());
+        assertEquals("john@example.com", resultUserDTO.email());
         verify(userDAO).save(any(User.class));
     }
 
@@ -301,7 +301,7 @@ class UserServiceTest {
 
     private void thenUserIsReturned() {
         assertTrue(optionalResult.isPresent());
-        assertEquals("John", optionalResult.get().getFirstName());
+        assertEquals("John", optionalResult.get().firstName());
         verify(userDAO).findById(1L);
     }
 
@@ -333,10 +333,10 @@ class UserServiceTest {
 
     private void thenUserIsUpdated() {
         assertTrue(optionalResult.isPresent());
-        assertEquals("Jane", optionalResult.get().getFirstName());
-        assertEquals("Smith", optionalResult.get().getLastName());
-        assertEquals(25, optionalResult.get().getAge());
-        assertEquals("jane@example.com", optionalResult.get().getEmail());
+        assertEquals("Jane", optionalResult.get().firstName());
+        assertEquals("Smith", optionalResult.get().lastName());
+        assertEquals(25, optionalResult.get().age());
+        assertEquals("jane@example.com", optionalResult.get().email());
         verify(userDAO).findById(1L);
         verify(userDAO).save(any(User.class));
     }

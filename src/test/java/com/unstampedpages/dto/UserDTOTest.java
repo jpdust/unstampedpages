@@ -1,6 +1,5 @@
 package com.unstampedpages.dto;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -8,143 +7,111 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserDTOTest {
 
     private UserDTO userDTO;
-
-    @BeforeEach
-    void setUp() {
-        userDTO = new UserDTO();
-    }
+    private UserDTO anotherUserDTO;
 
     @Test
-    void noArgConstructor_shouldCreateEmptyUserDTO() {
-        givenNewUserDTOFromNoArgConstructor();
-        thenAllFieldsAreNull();
-    }
-
-    @Test
-    void allArgsConstructor_shouldSetAllFields() {
+    void constructor_shouldSetAllFields() {
         givenUserDTOWithAllArgs();
         thenAllFieldsAreSetCorrectly();
     }
 
     @Test
-    void setUserId_shouldUpdateUserId() {
-        givenNewUserDTOFromNoArgConstructor();
-        whenSettingUserId(1L);
-        thenUserIdIsUpdated(1L);
+    void constructor_shouldAllowNullUserId() {
+        givenUserDTOWithNullUserId();
+        thenUserIdIsNull();
     }
 
     @Test
-    void setFirstName_shouldUpdateFirstName() {
-        givenNewUserDTOFromNoArgConstructor();
-        whenSettingFirstName("John");
-        thenFirstNameIsUpdated("John");
+    void accessors_shouldReturnCorrectValues() {
+        givenUserDTOWithAllArgs();
+        thenAccessorsReturnCorrectValues();
     }
 
     @Test
-    void setLastName_shouldUpdateLastName() {
-        givenNewUserDTOFromNoArgConstructor();
-        whenSettingLastName("Doe");
-        thenLastNameIsUpdated("Doe");
+    void equals_shouldReturnTrueForSameValues() {
+        givenTwoIdenticalUserDTOs();
+        thenTheyAreEqual();
     }
 
     @Test
-    void setAge_shouldUpdateAge() {
-        givenNewUserDTOFromNoArgConstructor();
-        whenSettingAge(30);
-        thenAgeIsUpdated(30);
+    void equals_shouldReturnFalseForDifferentValues() {
+        givenTwoDifferentUserDTOs();
+        thenTheyAreNotEqual();
     }
 
     @Test
-    void setEmail_shouldUpdateEmail() {
-        givenNewUserDTOFromNoArgConstructor();
-        whenSettingEmail("john@example.com");
-        thenEmailIsUpdated("john@example.com");
+    void hashCode_shouldBeSameForEqualObjects() {
+        givenTwoIdenticalUserDTOs();
+        thenHashCodesAreEqual();
     }
 
     @Test
-    void setters_shouldAllowUpdatingAllFields() {
-        givenNewUserDTOFromNoArgConstructor();
-        whenSettingAllFields();
-        thenAllFieldsAreUpdatedCorrectly();
-    }
-
-    private void givenNewUserDTOFromNoArgConstructor() {
-        userDTO = new UserDTO();
+    void toString_shouldContainAllFields() {
+        givenUserDTOWithAllArgs();
+        thenToStringContainsAllFields();
     }
 
     private void givenUserDTOWithAllArgs() {
         userDTO = new UserDTO(1L, "John", "Doe", 30, "john@example.com");
     }
 
-    private void whenSettingUserId(Long userId) {
-        userDTO.setUserId(userId);
+    private void givenUserDTOWithNullUserId() {
+        userDTO = new UserDTO(null, "John", "Doe", 30, "john@example.com");
     }
 
-    private void whenSettingFirstName(String firstName) {
-        userDTO.setFirstName(firstName);
+    private void givenTwoIdenticalUserDTOs() {
+        userDTO = new UserDTO(1L, "John", "Doe", 30, "john@example.com");
+        anotherUserDTO = new UserDTO(1L, "John", "Doe", 30, "john@example.com");
     }
 
-    private void whenSettingLastName(String lastName) {
-        userDTO.setLastName(lastName);
-    }
-
-    private void whenSettingAge(int age) {
-        userDTO.setAge(age);
-    }
-
-    private void whenSettingEmail(String email) {
-        userDTO.setEmail(email);
-    }
-
-    private void whenSettingAllFields() {
-        userDTO.setUserId(2L);
-        userDTO.setFirstName("Jane");
-        userDTO.setLastName("Smith");
-        userDTO.setAge(25);
-        userDTO.setEmail("jane@example.com");
-    }
-
-    private void thenAllFieldsAreNull() {
-        assertNull(userDTO.getUserId());
-        assertNull(userDTO.getFirstName());
-        assertNull(userDTO.getLastName());
-        assertEquals(0, userDTO.getAge());
-        assertNull(userDTO.getEmail());
+    private void givenTwoDifferentUserDTOs() {
+        userDTO = new UserDTO(1L, "John", "Doe", 30, "john@example.com");
+        anotherUserDTO = new UserDTO(2L, "Jane", "Smith", 25, "jane@example.com");
     }
 
     private void thenAllFieldsAreSetCorrectly() {
-        assertEquals(1L, userDTO.getUserId());
-        assertEquals("John", userDTO.getFirstName());
-        assertEquals("Doe", userDTO.getLastName());
-        assertEquals(30, userDTO.getAge());
-        assertEquals("john@example.com", userDTO.getEmail());
+        assertEquals(1L, userDTO.userId());
+        assertEquals("John", userDTO.firstName());
+        assertEquals("Doe", userDTO.lastName());
+        assertEquals(30, userDTO.age());
+        assertEquals("john@example.com", userDTO.email());
     }
 
-    private void thenUserIdIsUpdated(Long expectedUserId) {
-        assertEquals(expectedUserId, userDTO.getUserId());
+    private void thenUserIdIsNull() {
+        assertNull(userDTO.userId());
+        assertEquals("John", userDTO.firstName());
     }
 
-    private void thenFirstNameIsUpdated(String expectedFirstName) {
-        assertEquals(expectedFirstName, userDTO.getFirstName());
+    private void thenAccessorsReturnCorrectValues() {
+        assertAll(
+            () -> assertEquals(1L, userDTO.userId()),
+            () -> assertEquals("John", userDTO.firstName()),
+            () -> assertEquals("Doe", userDTO.lastName()),
+            () -> assertEquals(30, userDTO.age()),
+            () -> assertEquals("john@example.com", userDTO.email())
+        );
     }
 
-    private void thenLastNameIsUpdated(String expectedLastName) {
-        assertEquals(expectedLastName, userDTO.getLastName());
+    private void thenTheyAreEqual() {
+        assertEquals(userDTO, anotherUserDTO);
     }
 
-    private void thenAgeIsUpdated(int expectedAge) {
-        assertEquals(expectedAge, userDTO.getAge());
+    private void thenTheyAreNotEqual() {
+        assertNotEquals(userDTO, anotherUserDTO);
     }
 
-    private void thenEmailIsUpdated(String expectedEmail) {
-        assertEquals(expectedEmail, userDTO.getEmail());
+    private void thenHashCodesAreEqual() {
+        assertEquals(userDTO.hashCode(), anotherUserDTO.hashCode());
     }
 
-    private void thenAllFieldsAreUpdatedCorrectly() {
-        assertEquals(2L, userDTO.getUserId());
-        assertEquals("Jane", userDTO.getFirstName());
-        assertEquals("Smith", userDTO.getLastName());
-        assertEquals(25, userDTO.getAge());
-        assertEquals("jane@example.com", userDTO.getEmail());
+    private void thenToStringContainsAllFields() {
+        String toString = userDTO.toString();
+        assertAll(
+            () -> assertTrue(toString.contains("1")),
+            () -> assertTrue(toString.contains("John")),
+            () -> assertTrue(toString.contains("Doe")),
+            () -> assertTrue(toString.contains("30")),
+            () -> assertTrue(toString.contains("john@example.com"))
+        );
     }
 }
