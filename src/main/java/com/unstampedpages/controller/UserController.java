@@ -1,6 +1,6 @@
 package com.unstampedpages.controller;
 
-import com.unstampedpages.model.User;
+import com.unstampedpages.dto.UserDTO;
 import com.unstampedpages.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,25 +18,25 @@ public class UserController {
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user.getFirstName(), user.getLastName(), user.getAge(), user.getEmail());
+    public UserDTO createUser(@RequestBody UserDTO userDTO) {
+        return userService.createUser(userDTO.getFirstName(), userDTO.getLastName(), userDTO.getAge(), userDTO.getEmail());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Long id) {
+    public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
         return userService.getUser(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserDTO> getAllUsers() {
         return userService.getAllUsers();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
-        return userService.updateUser(id, user.getFirstName(), user.getLastName(), user.getAge(), user.getEmail())
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
+        return userService.updateUser(id, userDTO.getFirstName(), userDTO.getLastName(), userDTO.getAge(), userDTO.getEmail())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

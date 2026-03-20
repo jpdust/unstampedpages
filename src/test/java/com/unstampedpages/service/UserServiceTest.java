@@ -1,6 +1,7 @@
 package com.unstampedpages.service;
 
 import com.unstampedpages.dao.UserDAO;
+import com.unstampedpages.dto.UserDTO;
 import com.unstampedpages.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,9 +31,9 @@ class UserServiceTest {
     private ArgumentCaptor<User> userCaptor;
 
     private UserService userService;
-    private User resultUser;
-    private Optional<User> optionalResult;
-    private List<User> userList;
+    private UserDTO resultUserDTO;
+    private Optional<UserDTO> optionalResult;
+    private List<UserDTO> userDTOList;
     private boolean booleanResult;
 
     @BeforeEach
@@ -235,7 +236,7 @@ class UserServiceTest {
     }
 
     private void whenCreatingUser() {
-        resultUser = userService.createUser("John", "Doe", 30, "john@example.com");
+        resultUserDTO = userService.createUser("John", "Doe", 30, "john@example.com");
     }
 
     private void whenGettingUser() {
@@ -251,7 +252,7 @@ class UserServiceTest {
     }
 
     private void whenGettingAllUsers() {
-        userList = userService.getAllUsers();
+        userDTOList = userService.getAllUsers();
     }
 
     private void whenUpdatingUser() {
@@ -275,12 +276,12 @@ class UserServiceTest {
     }
 
     private void thenUserIsCreatedWithCorrectFields() {
-        assertNotNull(resultUser);
-        assertEquals(1L, resultUser.getUserId());
-        assertEquals("John", resultUser.getFirstName());
-        assertEquals("Doe", resultUser.getLastName());
-        assertEquals(30, resultUser.getAge());
-        assertEquals("john@example.com", resultUser.getEmail());
+        assertNotNull(resultUserDTO);
+        assertEquals(1L, resultUserDTO.getUserId());
+        assertEquals("John", resultUserDTO.getFirstName());
+        assertEquals("Doe", resultUserDTO.getLastName());
+        assertEquals(30, resultUserDTO.getAge());
+        assertEquals("john@example.com", resultUserDTO.getEmail());
         verify(userDAO).save(any(User.class));
     }
 
@@ -315,13 +316,13 @@ class UserServiceTest {
     }
 
     private void thenEmptyListIsReturned() {
-        assertNotNull(userList);
-        assertTrue(userList.isEmpty());
+        assertNotNull(userDTOList);
+        assertTrue(userDTOList.isEmpty());
         verify(userDAO).findAll();
     }
 
     private void thenAllUsersAreReturned() {
-        assertEquals(2, userList.size());
+        assertEquals(2, userDTOList.size());
         verify(userDAO).findAll();
     }
 
