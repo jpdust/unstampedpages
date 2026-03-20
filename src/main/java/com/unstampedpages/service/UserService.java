@@ -1,6 +1,7 @@
 package com.unstampedpages.service;
 
 import com.unstampedpages.dao.UserDAO;
+import com.unstampedpages.dto.UserDTO;
 import com.unstampedpages.model.User;
 import org.springframework.stereotype.Service;
 
@@ -15,26 +16,26 @@ public class UserService {
         this.userDAO = userDAO;
     }
 
-    public User createUser(String firstName, String lastName, int age, String email) {
+    public UserDTO createUser(String firstName, String lastName, int age, String email) {
         User user = new User(null, firstName, lastName, age, email);
-        return userDAO.save(user);
+        return toDTO(userDAO.save(user));
     }
 
-    public Optional<User> getUser(Long id) {
-        return userDAO.findById(id);
+    public Optional<UserDTO> getUser(Long id) {
+        return userDAO.findById(id).map(this::toDTO);
     }
 
-    public List<User> getAllUsers() {
-        return userDAO.findAll();
+    public List<UserDTO> getAllUsers() {
+        return userDAO.findAll().stream().map(this::toDTO).toList();
     }
 
-    public Optional<User> updateUser(Long id, String firstName, String lastName, int age, String email) {
+    public Optional<UserDTO> updateUser(Long id, String firstName, String lastName, int age, String email) {
         return userDAO.findById(id).map(user -> {
             user.setFirstName(firstName);
             user.setLastName(lastName);
             user.setAge(age);
             user.setEmail(email);
-            return userDAO.save(user);
+            return toDTO(userDAO.save(user));
         });
     }
 
@@ -44,5 +45,9 @@ public class UserService {
             return true;
         }
         return false;
+    }
+
+    private UserDTO toDTO(User user) {
+        return new UserDTO(user.getUserId(), user.getFirstName(), user.getLastName(), user.getAge(), user.getEmail());
     }
 }
